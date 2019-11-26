@@ -87,9 +87,11 @@ $ CUDA_VISIBLE_DEVICES=0 python test_net.py --dataset pascal_voc --net vgg16 --c
 ```
 
 
-# Demo using images
+## Demo using images
+
+Instead of testing the network to check their accuracy, we can perform a demo, testing files from folder `images` and generating images in the same folder with the termination `_det.jpg`. To do so, we can run for the model trained before:
 
 ```
-$ CUDA_VISIBLE_DEVICES=0 python demo.py --net vgg16  --checksession 1 --checkepoch 20 --checkpoint 2504 --cuda --load_dir /home/roger/Workspace/github/envs/faster-rcnn.pytorch/models
+$ CUDA_VISIBLE_DEVICES=0 python demo.py --net vgg16  --checksession 1 --checkepoch 3 --checkpoint 196452 --cuda --load_dir models/
 ```
 
