@@ -36,7 +36,7 @@ $ cd $FRCN_ROOT/lib
 $ sh make.sh
 ```
 
-## Testing Faster-RCNN.pytorch
+## Training-Testing Faster-RCNN.pytorch
 
 In order to test Faster-RCNN.pytorch, we can use the `VOC2007` dataset. To test with it, first, we download it in a folder `$ROOT_DATA/data`, where `$ROOT_DATA` is the folder that we further link to our `data` folder inside the `faster-rcnn.pytorch` folder. Here, we consider `ROOT_DATA=/usr/share/datasets/Roger/faster-rcnn.pytorch`. We run:
 
