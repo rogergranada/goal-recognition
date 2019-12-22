@@ -45,10 +45,11 @@ class FolderHandler(object):
 
 class FileHandler(object):
     """ Super class with shared functions """
-    def __init__(self, inputfile):
+    def __init__(self, inputfile, sep='\t'):
         self.inputfile = inputfile
         self.path = ''
         self.fname = ''
+        self.sep = sep
 
     def __enter__(self):
         self.exist_file()
@@ -78,7 +79,7 @@ class FileHandler(object):
         with open(self.inputfile) as fin:
             for line in fin:
                 if not line[0].isdigit(): continue
-                idf = int(line.split('\t')[0])
+                idf = int(line.split(self.sep)[0])
                 if idf != last_idf:
                     last_idf = idf
                     counter += 1
@@ -345,8 +346,8 @@ class PredictionFile(FileHandler):
 
         where `score' is a value between 0 and 1.
     """
-    def __init__(self, inputfile):
-        super(PredictionFile, self).__init__(inputfile)
+    def __init__(self, inputfile, sep=';'):
+        super(PredictionFile, self).__init__(inputfile, sep=sep)
 
     def __iter__(self):
         for self.nb_line, line in enumerate(self.fin):
