@@ -13,11 +13,15 @@ The output is the keras-yolov3 annotation in the format:
 Path xmin,ymin,xmax,ymax,class_id xmin,ymin,xmax,ymax,class_id
 ``` 
 """
+import logging
+logger = logging.getLogger(__name__)
+logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 import argparse
 from PIL import Image
 import os
 import ast
 from os.path import join
+
 
 def change_annotation(fan, fout, dclasses):
     """
@@ -69,11 +73,11 @@ def main(folder_annotation, output):
             for file in files:
                 if file == 'Bounding_Boxes_Annotation.txt':
                     fannot = join(root, file)
-                    print('Opening file: {}'.format(fannot))
+                    logger.info('Opening file: {}'.format(fannot))
                     dclasses = change_annotation(fannot, fout, dclasses)
         sorted_classes = sorted(dclasses.items(), key=lambda kv: kv[1])
         for k, v in sorted_classes:
-            fclout.write('%d %s\n' % (v, k))
+            fclout.write('%s\n' % k)
 
 
 if __name__ == "__main__":
