@@ -54,7 +54,6 @@ def convert_relations_string(relations):
     content = ''
     dobj = {}
     for arr in relations:
-        print arr, len(arr)
         if len(arr) == 2:
             s, o = arr
             content += '({} {}1),'.format(s, o)
@@ -194,10 +193,12 @@ def generate_goal_states(folder_input, output):
     drecipes = {}
     relfiles = fh.FolderHandler(folder_input)
     for file_input in relfiles:
+        logger.info('Reading file: {}'.format(file_input))
         fname = fh.filename(file_input, extension=False)[2:]
         relations = goal_state_from_file(file_input)
         add_relations(drecipes, fname, relations)
 
+    logger.info('Saving goal states in: {}'.format(output))
     save_goal(drecipes, output)
     
 
