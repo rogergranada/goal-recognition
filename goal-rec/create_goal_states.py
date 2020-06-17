@@ -132,14 +132,15 @@ def goal_state_from_file(fileinput, output=None):
     fd = fh.DecompressedFile(fileinput)
     rels = fd.relations_at_frame(fd.nb_frames()-1)
     rels = check_group(rels)
+    
     if output:
         save_goal(rels)
     return rels
     
 
 def add_relations(dic, key, values):
-    """ Add relations to the dictionary. When a relation contains a subject
-        with multiple objects or relations, this relations is discarded.
+    """ Add relations to the dictionary. Only consider for the goal state
+        the relations that appear in all recipes.
 
     Parameters:
     -----------
@@ -153,25 +154,14 @@ def add_relations(dic, key, values):
     Example:
     --------
     >>> d = {'f1':[('A','on','B'),('C','in','D')]}
-    >>> add_relations(d, 'f1', [('A','in','B'),('E','in','F')])
+    >>> add_relations(d, 'f1', [('A','on','B'),('E','in','F')])
     >>> print(d)
-        {'f1':[('C','in','D'),('E','in','F')]}
+        {'f1':[('A','on','B')]}
     """
-    for rel in values:
-        remove = []
-        if key in dic:
-            if rel not in dic[key]:
-                for i, arr in enumerate(dic[key]):
-                    if rel[0] == arr[0] and (rel[1] != arr[1] or rel[2] != arr[2]):
-                        remove.append(i)
-                if remove:
-                    for i in remove:
-                        del dic[key][i]
-                else:
-                    dic[key].append(rel)
-        else:
-            rel = list(set(rel))
-            dic[key] = [rel]
+    rel = values
+    if key in dic:
+        rel = set(dic[key]).intersection(set(values))
+    dic[key] = rel
 
 
 def generate_goal_states(folder_input, output):
@@ -197,7 +187,7 @@ def generate_goal_states(folder_input, output):
         fname = fh.filename(file_input, extension=False)[2:]
         relations = goal_state_from_file(file_input)
         add_relations(drecipes, fname, relations)
-
+    
     logger.info('Saving goal states in: {}'.format(output))
     save_goal(drecipes, output)
     
