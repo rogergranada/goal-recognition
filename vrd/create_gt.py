@@ -34,6 +34,41 @@ def add_element(element, vec):
         element = np.append(element, [vec], axis=0)
     return element
 
+def load_relations(file_relations, do, dr, dmap=None, home=None):
+    """ Returns a dictionary containing the form
+    drels[path_img] = [(idsub1, idrel1, idobj1), (idsub2, idrel2, idobj2),...]
+
+    Parameters:
+    -----------
+    file_relations: string
+        path to the Decompressed file containing relations
+    do: dict
+        dictionary in the form {'object_1': idobj1, 'object_2': idobj2...}
+    dr: dict
+        dictionary in the form {'relation1': idrel1, 'relation2': idrel2...}
+    dmap: dict
+        dictionary with maps from KSCGR to VOC dataset {'kscgr_path1': voc_path1,...} 
+    home: string
+        path to the files in the server, such as '/usr/share/datasets/VOC/'
+    """
+    dic_rels = defaultdict(list) # relations for each image
+    logger.info('Loading information from file: {}'.format(file_relations))
+    filerls = fh.DecompressedFile(file_relations)
+    pb = pbar.ProgressBar(filerls.nb_lines())
+    
+    with filerls as frels:
+        for fr, o1, r, o2, path in frels:
+            #print fr, o1, r, o2, path
+            idsub = do[o1]
+            idrel = dr[r]
+            idobj = do[o2]
+            pathimg = join(path, str(fr)+'.jpg')
+            if dmap:
+                pathimg = dmap[join(home, pathimg)]
+            dic_rels[pathimg].append((idsub, idrel, idobj))
+            pb.update()
+    return dic_rels
+
 
 def create_gt_pickle(fileobj, filerel, output=None, class_file='classes.cfg', rels_file='relations.cfg'):
     """
@@ -52,7 +87,7 @@ def create_gt_pickle(fileobj, filerel, output=None, class_file='classes.cfg', re
     logger.info('Loaded dictionary with {} objects.'.format(len(do)))
     dr = fh.ConfigFile(rels_file).load_classes(cnames=True)
     logger.info('Loaded dictionary with {} relations.'.format(len(dr)))
-
+    '''
     dic_rels = defaultdict(list) # relations for each image
     logger.info('Loading information from file: {}'.format(filerel))
     filerls = fh.DecompressedFile(filerel)
@@ -65,11 +100,13 @@ def create_gt_pickle(fileobj, filerel, output=None, class_file='classes.cfg', re
             pathimg = join(path, str(fr)+'.jpg')
             dic_rels[pathimg].append((idsub, idrel, idobj))
             pb.update()
+    '''
+    dic_rels = load_relations(filerel, do, dr)
     print
     # Load objects
     logger.info('Loading information from file: {}'.format(fileobj))
     flis = fh.LisFile(fileobj)
-    nb_frames = filerls.nb_frames()
+    nb_frames = flis.nb_frames()
     pb = pbar.ProgressBar(nb_frames)
     logger.info('Processing {} frames.'.format(nb_frames))
     with flis as fin:
@@ -105,8 +142,8 @@ def create_gt_pickle(fileobj, filerel, output=None, class_file='classes.cfg', re
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('objfile', metavar='file_objects', help='Path to the file containing relations between objects.')
-    parser.add_argument('relfile', metavar='file_relations', help='Path to the file containing relations between objects.')
+    parser.add_argument('objfile', metavar='file_objects', help='Path to the file containing LIS annotation.')
+    parser.add_argument('relfile', metavar='file_relations', help='Path to the file containing Decompressed relations between objects.')
     parser.add_argument('-o', '--output', help='Path to the file to save the conditional probabilities.')
     parser.add_argument('-c', '--cfg_objects', help='File containing ids and their classes', default='classes.cfg')
     parser.add_argument('-r', '--cfg_relations', help='File containing ids and their relations', default='relations.cfg')
