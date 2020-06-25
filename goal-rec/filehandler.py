@@ -487,18 +487,23 @@ class PDDLInit(object):
         self.init_states = ''
         self.groups = {}
         self.relations = {}
+        self.objects = {}
         self.config = cp.ConfigParser()
         self.config.sections()
         self.config.read(initfile)
         self._load_init()
         self._load_group()
         self._load_relations()
+        self._load_objects()
 
     def _load_init(self):
         self.init_states = ast.literal_eval(self.config['INIT_STATE']['init'])
 
     def _load_group(self):
-        self.groups['egg'] = ast.literal_eval(self.config['INIT_STATE']['init'])
+        self.groups['egg'] = ast.literal_eval(self.config['GROUPS']['egg'])
+
+    def _load_objects(self):
+        self.objects = ast.literal_eval(self.config['OBJECTS']['objects'])
 
     def _load_relations(self):
         for rel in self.config['RELATIONS']:
